@@ -257,7 +257,7 @@ namespace SteelProdBE.Services.BusinessServices
 
                         (string pieceMatColor, string matColor) = colorMappings.TryGetValue(mat.col_name ?? "", out var colors) ? colors : ("", "");
 
-                        XElement piece = new XElement("pezzo", new XAttribute("nome", $"{mat.mat_name}{pieceMatColor}-{cut.cut_idcode.Replace(".", "-")}-{counter}"), new XAttribute("macc", "2720"), new XAttribute("lung", $"{cut.cut_lenght_external}"), new XAttribute("pw", "0"), new XAttribute("outDir", $"C:\\Users\\preve\\Desktop\\DB_Protube\\{dto.job_id}{dto.customer}\\{dto.job_id}{mat.mat_name}"), new XAttribute("um", "mm"));
+                        XElement piece = new XElement("pezzo", new XAttribute("nome", $"{mat.mat_name}{pieceMatColor}-{cut.cut_idcode.Replace(".", "-")}-{counter}"), new XAttribute("macc", "2720"), new XAttribute("lung", $"{cut.cut_lenght_external}"), new XAttribute("pw", "0"), new XAttribute("outDir", $"\\\\Serverproliant3\\d\\Blm Pro\\opera"), new XAttribute("um", "mm"));
 
                         if (cut.xmlMachinings.Count > 0)
                             FileList.Add(piece);
