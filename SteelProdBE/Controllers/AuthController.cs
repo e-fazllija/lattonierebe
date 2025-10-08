@@ -102,42 +102,50 @@ namespace SteelProdBE.Controllers
         [Route(nameof(Login))]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            model.Email = model.Email.Replace(" ", "_");
-            var user = await userManager.FindByEmailAsync(model.Email);
-            var pass = await userManager.CheckPasswordAsync(user, model.Password);
-            if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
+            try
             {
-                var userRoles = await userManager.GetRolesAsync(user);
-                var authClaims = new List<Claim>
+                model.Email = model.Email.Replace(" ", "_");
+                var user = await userManager.FindByEmailAsync(model.Email);
+                var pass = await userManager.CheckPasswordAsync(user, model.Password);
+                if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    var userRoles = await userManager.GetRolesAsync(user);
+                    var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
-                foreach (var userRole in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                }
-                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:SecretForKey"]));
-                var token = new JwtSecurityToken(
-                        issuer: _configuration["Authentication:Issuer"],
-                    audience: _configuration["Authentication:Audience"],
-                expires: DateTime.Now.AddHours(3),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                    );
-                LoginResponse result = new LoginResponse()
-                {
-                    Name = user.Name,
-                    Lastname = user.LastName,
-                    Email = user.Email,
-                    Password = "",
-                    Role = userRoles.FirstOrDefault() ?? "",
-                    Token = new JwtSecurityTokenHandler().WriteToken(token),
-                };
+                    foreach (var userRole in userRoles)
+                    {
+                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    }
+                    var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:SecretForKey"]));
+                    var token = new JwtSecurityToken(
+                            issuer: _configuration["Authentication:Issuer"],
+                        audience: _configuration["Authentication:Audience"],
+                    expires: DateTime.Now.AddHours(3),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                        );
+                    LoginResponse result = new LoginResponse()
+                    {
+                        Name = user.Name,
+                        Lastname = user.LastName,
+                        Email = user.Email,
+                        Password = "",
+                        Role = userRoles.FirstOrDefault() ?? "",
+                        Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    };
 
-                return Ok(result);
+                    return Ok(result);
+                }
+                return Unauthorized();
             }
-            return Unauthorized();
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            
         }
 
         [HttpPost]

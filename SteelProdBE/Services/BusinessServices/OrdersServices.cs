@@ -128,7 +128,7 @@ namespace SteelProdBE.Services.BusinessServices
                             .Take(options.CurrentValue.MaterialItemPerPage);
                 }
 
-                List<XmlOpera> queryList = await query.Include(x => x.Job).ThenInclude(x => x.OperaJobCustomer).ToListAsync();
+                List<XmlOpera> queryList = await query.OrderByDescending(x => x.Id).Include(x => x.Job).ThenInclude(x => x.OperaJobCustomer).ToListAsync();
 
 
                 result.Data = _mapper.Map<List<XmlOperaSelectModel>>(queryList);
@@ -209,7 +209,8 @@ namespace SteelProdBE.Services.BusinessServices
         public async Task<List<XElement>> CreateXmlFileList(XmlFileListCreateModel dto)
         {
             if (string.IsNullOrEmpty(dto.customer))
-                throw new NullReferenceException("Errore cst_name. Non è stato trovato nessun riferimento al tag");
+                dto.customer = "Default";
+                //throw new NullReferenceException("Errore cst_name. Non è stato trovato nessun riferimento al tag");
 
             List<XElement> listXml = new List<XElement>();
             string condition_IdCode = "";
